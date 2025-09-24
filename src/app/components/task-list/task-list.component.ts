@@ -1,10 +1,10 @@
-// src/app/components/task-list/task-list.component.ts
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Task, Priority, Status } from '../../core/models/task.model';
 import { TaskStore } from '../../core/services/task.store';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-task-list',
@@ -15,9 +15,10 @@ import { TaskStore } from '../../core/services/task.store';
 export class TaskListComponent {
   private taskStore = inject(TaskStore);
 
-  tasks$ = this.taskStore.tasks$;
-  loading$ = this.taskStore.loading$;
-  
+  // convert store observables into signals
+  tasks = toSignal(this.taskStore.tasks$, { initialValue: [] });
+  loading = toSignal(this.taskStore.loading$, { initialValue: false });
+
   filterStatus = signal<Status | 'all'>('all');
   filterPriority = signal<Priority | 'all'>('all');
   searchTerm = signal('');
@@ -25,27 +26,26 @@ export class TaskListComponent {
   priorities = Object.values(Priority);
   statuses = Object.values(Status);
 
-  filteredTasks$ = this.taskStore.select(state => {
-    let tasks = this.sortTasks(state.tasks);
-    
-    // Apply filters
+  // now filters react to signals + tasks
+  filteredTasks = computed(() => {
+    let tasks = this.sortTasks(this.tasks());
+
     if (this.filterStatus() !== 'all') {
       tasks = tasks.filter(task => task.status === this.filterStatus());
     }
-    
+
     if (this.filterPriority() !== 'all') {
       tasks = tasks.filter(task => task.priority === this.filterPriority());
     }
-    
-    // Apply search
+
     if (this.searchTerm()) {
       const term = this.searchTerm().toLowerCase();
-      tasks = tasks.filter(task => 
-        task.title.toLowerCase().includes(term) || 
+      tasks = tasks.filter(task =>
+        task.title.toLowerCase().includes(term) ||
         (task.description?.toLowerCase().includes(term) || false)
       );
     }
-    
+
     return tasks;
   });
 
@@ -71,37 +71,34 @@ export class TaskListComponent {
   }
 
   exportToCSV() {
-    this.tasks$.subscribe(tasks => {
-      const headers = ['Title', 'Description', 'Priority', 'Status', 'Due Date', 'Created At'];
-      const csvContent = [
-        headers.join(','),
-        ...tasks.map(task => [
-          `"${task.title.replace(/"/g, '""')}"`,
-          `"${(task.description || '').replace(/"/g, '""')}"`,
-          task.priority,
-          task.status,
-          task.dueDate.toISOString().split('T')[0],
-          task.createdAt.toISOString().split('T')[0]
-        ].join(','))
-      ].join('\n');
+    const tasks = this.tasks();
+    const headers = ['Title', 'Description', 'Priority', 'Status', 'Due Date', 'Created At'];
+    const csvContent = [
+      headers.join(','),
+      ...tasks.map(task => [
+        `"${task.title.replace(/"/g, '""')}"`,
+        `"${(task.description || '').replace(/"/g, '""')}"`,
+        task.priority,
+        task.status,
+        task.dueDate.toISOString().split('T')[0],
+        task.createdAt.toISOString().split('T')[0]
+      ].join(','))
+    ].join('\n');
 
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'tasks.csv';
-      link.click();
-      window.URL.revokeObjectURL(url);
-    });
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'tasks.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   private sortTasks(tasks: Task[]): Task[] {
     const priorityOrder = { [Priority.High]: 3, [Priority.Medium]: 2, [Priority.Low]: 1 };
-    
     return [...tasks].sort((a, b) => {
       const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
       if (priorityDiff !== 0) return priorityDiff;
-      
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
   }
