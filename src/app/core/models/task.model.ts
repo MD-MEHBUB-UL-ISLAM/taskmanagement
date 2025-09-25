@@ -1,4 +1,3 @@
-// src/app/core/models/task.model.ts
 export enum Priority {
   Low = 'Low',
   Medium = 'Medium',

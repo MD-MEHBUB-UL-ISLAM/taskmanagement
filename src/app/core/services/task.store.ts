@@ -1,4 +1,4 @@
-// src/app/core/services/task.store.ts
+
 import { Injectable, inject } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
 import { Observable, tap } from 'rxjs';
@@ -29,12 +29,9 @@ export class TaskStore extends ComponentStore<TaskState> {
     this.loadTasks();
   }
 
-  // Selectors
   readonly tasks$ = this.select(state => this.sortTasks(state.tasks));
   readonly loading$ = this.select(state => state.loading);
   readonly error$ = this.select(state => state.error);
-
-  // Updaters
   readonly setLoading = this.updater((state, loading: boolean) => ({
     ...state,
     loading
@@ -67,7 +64,7 @@ export class TaskStore extends ComponentStore<TaskState> {
     tasks: state.tasks.filter(task => task.id !== taskId)
   }));
 
-  // Effects
+
   readonly loadTasks = this.effect((trigger$: Observable<void>) => 
     trigger$.pipe(
       tap(() => {
@@ -120,7 +117,7 @@ export class TaskStore extends ComponentStore<TaskState> {
     )
   );
 
-  // Private methods
+
   private sortTasks(tasks: Task[]): Task[] {
     const priorityOrder = { [Priority.High]: 3, [Priority.Medium]: 2, [Priority.Low]: 1 };
     

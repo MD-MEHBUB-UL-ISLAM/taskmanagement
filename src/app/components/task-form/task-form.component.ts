@@ -1,9 +1,8 @@
-// src/app/components/task-form/task-form.component.ts
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Task, TaskFormData, Priority, Status, Category } from '../../core/models/task.model';
+import { TaskFormData, Priority, Status, Category } from '../../core/models/task.model';
 import { TaskStore } from '../../core/services/task.store';
 import { TaskService } from '../../core/services/task.service';
 
@@ -69,7 +68,6 @@ export class TaskFormComponent implements OnInit {
           dueDate: this.formatDate(task.dueDate)
         });
 
-        // Apply status transition rules
         if (task.status === Status.Completed) {
           this.taskForm.get('status')?.disable();
         }
@@ -87,7 +85,7 @@ export class TaskFormComponent implements OnInit {
       const taskData: TaskFormData = {
         ...formValue,
         dueDate: new Date(formValue.dueDate),
-        attendees: Number(formValue.attendees) // Ensure it's a number
+        attendees: Number(formValue.attendees) 
       };
 
       if (this.isEditMode() && this.currentTaskId()) {
@@ -126,7 +124,7 @@ export class TaskFormComponent implements OnInit {
 
   onStatusChange(newStatus: Status) {
     if (this.isEditMode() && this.currentTaskId()) {
-      // Add your status transition logic here if needed
+      return;
     }
   }
 }

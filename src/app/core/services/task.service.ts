@@ -1,4 +1,4 @@
-// src/app/core/services/task.service.ts
+
 import { Injectable, inject } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { Task, TaskFormData, Priority, Status, Category } from '../models/task.model';
@@ -15,7 +15,7 @@ export class TaskService {
       description: 'Draft and finalize the project proposal for client review.',
       priority: Priority.High,
       status: Status.Todo,
-      dueDate: new Date('2025-12-01'),
+      dueDate: new Date('2025-12-10T10:00:00Z'),
       createdAt: new Date('2023-07-10T10:00:00Z'),
       category: Category.Workshop,
       location: 'Conference Room A',
@@ -27,7 +27,7 @@ export class TaskService {
       description: 'Go through the technical documentation and provide feedback.',
       priority: Priority.Medium,
       status: Status.InProgress,
-      dueDate: new Date('2024-01-15'),
+      dueDate: new Date('2024-07-01T09:00:00Z'),
       createdAt: new Date('2023-07-01T09:00:00Z'),
       category: Category.Seminar,
       location: 'Main Auditorium',
@@ -39,7 +39,7 @@ export class TaskService {
       description: 'Prepare agenda and materials for the weekly team meeting.',
       priority: Priority.Low,
       status: Status.Completed,
-      dueDate: new Date('2023-12-20'),
+      dueDate: new Date('2025-10-28T14:00:00Z'),
       createdAt: new Date('2023-06-28T14:00:00Z'),
       category: Category.ClubMeetings,
       location: 'Team Room 3',
@@ -51,7 +51,7 @@ export class TaskService {
       description: 'Organize the annual company social event for employees.',
       priority: Priority.Medium,
       status: Status.Todo,
-      dueDate: new Date('2024-02-14'),
+      dueDate: new Date('2023-09-15T11:00:00Z'),
       createdAt: new Date('2023-07-15T11:00:00Z'),
       category: Category.Social,
       location: 'Grand Ballroom',
@@ -63,7 +63,7 @@ export class TaskService {
       description: 'Conduct Angular framework workshop for developers.',
       priority: Priority.High,
       status: Status.InProgress,
-      dueDate: new Date('2024-01-30'),
+      dueDate: new Date('2025-07-12T08:00:00Z'),
       createdAt: new Date('2023-07-12T08:00:00Z'),
       category: Category.Workshop,
       location: 'Training Lab 2',

@@ -1,4 +1,3 @@
-// src/app/components/task-list/task-list.component.ts
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,8 +14,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class TaskListComponent {
   private taskStore = inject(TaskStore);
-
-  // convert store observables into signals
   tasks = toSignal(this.taskStore.tasks$, { initialValue: [] });
   loading = toSignal(this.taskStore.loading$, { initialValue: false });
 
@@ -29,7 +26,6 @@ export class TaskListComponent {
   statuses = Object.values(Status);
   categories = Object.values(Category);
 
-  // now filters react to signals + tasks
   filteredTasks = computed(() => {
     let tasks = this.sortTasks(this.tasks());
 
@@ -88,7 +84,7 @@ export class TaskListComponent {
     }
   }
 
-// In task-list.component.ts - update the exportToCSV method
+
 exportToCSV() {
   const tasks = this.tasks();
   const headers = ['Title', 'Description', 'Priority', 'Status', 'Category', 'Location', 'Attendees', 'Due Date', 'Created At'];
