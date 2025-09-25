@@ -1,3 +1,4 @@
+<!-- src/app/components/task-list/task-list.component.html -->
 <div class="flex justify-between items-center mb-8">
   <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
     Task List
@@ -16,9 +17,8 @@
 </div>
 
 <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-  <!-- Filters -->
-  <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-6 gap-6">
-<!-- Add this filter section with the existing filters -->
+  <!-- Filters section -->
+     <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-6 gap-6">
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full md:w-auto">
   <!-- Status -->
   <div>
@@ -116,77 +116,98 @@
     </div>
   } @else {
     <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-<!-- In task-list.component.html - update the table headers and rows -->
-<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-  <thead class="bg-gray-50 dark:bg-gray-800">
-    <tr>
-      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Title</th>
-      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Priority</th>
-      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Category</th>
-      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Status</th>
-      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Location</th>
-      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Attendees</th>
-      <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Due Date</th>
-      <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Actions</th>
-    </tr>
-  </thead>
-  <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-700">
-    @for (task of filteredTasks(); track task.id) {
-      <tr [class.bg-red-50]="isOverdue(task)" class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-        <td class="px-6 py-4">
-          <div class="font-medium text-gray-900 dark:text-gray-100">{{ task.title }}</div>
-          @if (isOverdue(task)) {
-            <span class="ml-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Overdue</span>
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+        <thead class="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Title</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Priority</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Category</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Location</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Attendees</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Due Date</th>
+            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-700">
+          @for (task of filteredTasks(); track task.id) {
+            <tr [class.bg-red-50]="isOverdue(task)" class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+              <td class="px-6 py-4">
+                <div class="font-medium text-gray-900 dark:text-gray-100">{{ task.title }}</div>
+                @if (isOverdue(task)) {
+                  <span class="ml-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Overdue</span>
+                }
+                @if (task.description) {
+                  <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ task.description }}</div>
+                }
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs font-medium rounded-full {{ getPriorityColor(task.priority) }}">
+                  {{ task.priority }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs font-medium rounded-full {{ getCategoryColor(task.category) }}">
+                  {{ task.category }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs font-medium rounded-full {{ getStatusColor(task.status) }}">
+                  {{ task.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ task.location }}</td>
+              <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                <span class="inline-flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                  </svg>
+                  {{ task.attendees }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm font-medium" [class.text-red-600]="isOverdue(task)">
+                {{ task.dueDate | date:'mediumDate' }}
+              </td>
+              <td class="px-6 py-4 text-right flex justify-end gap-2">
+                <!-- Clone Button -->
+                <button
+                  (click)="onQuickClone(task)"
+                  class="px-3 py-1.5 rounded-md text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 
+                         transition flex items-center gap-1"
+                  title="Clone this task"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                  </svg>
+                  Clone
+                </button>
+                
+                <!-- Edit Button -->
+                <button
+                  [routerLink]="['/edit', task.id]"
+                  [disabled]="task.status === 'Completed'"
+                  class="px-3 py-1.5 rounded-md text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 
+                         disabled:text-gray-400 disabled:bg-gray-50 dark:disabled:bg-gray-800 
+                         disabled:cursor-not-allowed transition"
+                >
+                  Edit
+                </button>
+                
+                <!-- Delete Button -->
+                <button
+                  (click)="onDeleteTask(task.id)"
+                  [disabled]="task.status === 'Completed'"
+                  class="px-3 py-1.5 rounded-md text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 
+                         disabled:text-gray-400 disabled:bg-gray-50 dark:disabled:bg-gray-800 
+                         disabled:cursor-not-allowed transition"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
           }
-          @if (task.description) {
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ task.description }}</div>
-          }
-        </td>
-        <td class="px-6 py-4">
-          <span class="px-2 py-1 text-xs font-medium rounded-full {{ getPriorityColor(task.priority) }}">
-            {{ task.priority }}
-          </span>
-        </td>
-        <td class="px-6 py-4">
-          <span class="px-2 py-1 text-xs font-medium rounded-full {{ getCategoryColor(task.category) }}">
-            {{ task.category }}
-          </span>
-        </td>
-        <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ task.status }}</td>
-        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ task.location }}</td>
-        <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
-          <span class="inline-flex items-center gap-1">
- 
-            {{ task.attendees }}
-          </span>
-        </td>
-        <td class="px-6 py-4 text-sm font-medium" [class.text-red-600]="isOverdue(task)">
-          {{ task.dueDate | date:'mediumDate' }}
-        </td>
-         <td class="px-6 py-4 text-right flex justify-end gap-2">
-          <button
-            [routerLink]="['/edit', task.id]"
-            [disabled]="task.status === 'Completed'"
-            class="px-3 py-1.5 rounded-md text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 
-                   disabled:text-gray-400 disabled:bg-gray-50 dark:disabled:bg-gray-800 
-                   disabled:cursor-not-allowed transition"
-          >
-            Edit
-          </button>
-          <button
-            (click)="onDeleteTask(task.id)"
-            [disabled]="task.status === 'Completed'"
-            class="px-3 py-1.5 rounded-md text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 
-                   disabled:text-gray-400 disabled:bg-gray-50 dark:disabled:bg-gray-800 
-                   disabled:cursor-not-allowed transition"
-          >
-            Delete
-          </button>
-        </td>
-      </tr>
-    }
-  </tbody>
-</table>
+        </tbody>
+      </table>
 
       @if (filteredTasks().length === 0) {
         <div class="text-center py-10 text-gray-500 dark:text-gray-400 text-sm">

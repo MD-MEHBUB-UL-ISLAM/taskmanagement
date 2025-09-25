@@ -1,4 +1,3 @@
-
 import { Injectable, inject } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { Task, TaskFormData, Priority, Status, Category } from '../models/task.model';
@@ -15,7 +14,7 @@ export class TaskService {
       description: 'Draft and finalize the project proposal for client review.',
       priority: Priority.High,
       status: Status.Todo,
-      dueDate: new Date('2025-12-10T10:00:00Z'),
+      dueDate: new Date('2025-12-01'),
       createdAt: new Date('2023-07-10T10:00:00Z'),
       category: Category.Workshop,
       location: 'Conference Room A',
@@ -27,7 +26,7 @@ export class TaskService {
       description: 'Go through the technical documentation and provide feedback.',
       priority: Priority.Medium,
       status: Status.InProgress,
-      dueDate: new Date('2024-07-01T09:00:00Z'),
+      dueDate: new Date('2024-01-15'),
       createdAt: new Date('2023-07-01T09:00:00Z'),
       category: Category.Seminar,
       location: 'Main Auditorium',
@@ -39,39 +38,16 @@ export class TaskService {
       description: 'Prepare agenda and materials for the weekly team meeting.',
       priority: Priority.Low,
       status: Status.Completed,
-      dueDate: new Date('2025-10-28T14:00:00Z'),
+      dueDate: new Date('2023-12-20'),
       createdAt: new Date('2023-06-28T14:00:00Z'),
       category: Category.ClubMeetings,
       location: 'Team Room 3',
       attendees: 12
-    },
-    {
-      id: '123e4567-e89b-12d3-a456-426614174003',
-      title: 'Annual Social Event',
-      description: 'Organize the annual company social event for employees.',
-      priority: Priority.Medium,
-      status: Status.Todo,
-      dueDate: new Date('2023-09-15T11:00:00Z'),
-      createdAt: new Date('2023-07-15T11:00:00Z'),
-      category: Category.Social,
-      location: 'Grand Ballroom',
-      attendees: 300
-    },
-    {
-      id: '123e4567-e89b-12d3-a456-426614174004',
-      title: 'Technical Workshop',
-      description: 'Conduct Angular framework workshop for developers.',
-      priority: Priority.High,
-      status: Status.InProgress,
-      dueDate: new Date('2025-07-12T08:00:00Z'),
-      createdAt: new Date('2023-07-12T08:00:00Z'),
-      category: Category.Workshop,
-      location: 'Training Lab 2',
-      attendees: 40
     }
   ];
 
-  getTasks(): Observable<Task[]> {
+
+    getTasks(): Observable<Task[]> {
     return of(this.tasks).pipe(delay(500));
   }
 
@@ -111,13 +87,12 @@ export class TaskService {
     throw new Error('Task not found');
   }
 
-  // Optional: Get tasks with high attendance
+
   getHighAttendanceTasks(minAttendees: number = 50): Observable<Task[]> {
     const filteredTasks = this.tasks.filter(task => task.attendees >= minAttendees);
     return of(filteredTasks).pipe(delay(300));
   }
 
-  // Optional: Get total attendees by category
   getTotalAttendeesByCategory(): Observable<{category: Category, total: number}[]> {
     const categoryTotals = this.tasks.reduce((acc, task) => {
       acc[task.category] = (acc[task.category] || 0) + task.attendees;
@@ -130,5 +105,43 @@ export class TaskService {
     }));
 
     return of(result).pipe(delay(200));
+  }
+
+  cloneTask(id: string): Observable<Task> {
+    const originalTask = this.tasks.find(t => t.id === id);
+    if (!originalTask) {
+      throw new Error('Task not found');
+    }
+
+    const clonedTask: Task = {
+      ...originalTask,
+      id: uuidv4(),
+      title: `${originalTask.title} (Copy)`,
+      status: Status.Draft,
+      dueDate: new Date(originalTask.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000),
+      createdAt: new Date()
+    };
+
+    this.tasks.push(clonedTask);
+    return of(clonedTask).pipe(delay(300));
+  }
+
+
+  cloneTaskWithModifications(id: string, modifications: Partial<TaskFormData>): Observable<Task> {
+    const originalTask = this.tasks.find(t => t.id === id);
+    if (!originalTask) {
+      throw new Error('Task not found');
+    }
+
+    const clonedTask: Task = {
+      ...originalTask,
+      id: uuidv4(),
+      status: Status.Draft,
+      createdAt: new Date(),
+      ...modifications
+    };
+
+    this.tasks.push(clonedTask);
+    return of(clonedTask).pipe(delay(300));
   }
 }

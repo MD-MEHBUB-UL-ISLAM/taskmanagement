@@ -5,6 +5,7 @@ export enum Priority {
 }
 
 export enum Status {
+  Draft = 'Draft',
   Todo = 'To Do',
   InProgress = 'In Progress',
   Completed = 'Completed'

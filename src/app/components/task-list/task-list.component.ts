@@ -14,6 +14,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class TaskListComponent {
   private taskStore = inject(TaskStore);
+
   tasks = toSignal(this.taskStore.tasks$, { initialValue: [] });
   loading = toSignal(this.taskStore.loading$, { initialValue: false });
 
@@ -78,39 +79,59 @@ export class TaskListComponent {
     }
   }
 
+  getStatusColor(status: Status): string {
+    switch (status) {
+      case Status.Draft: return 'bg-gray-100 text-gray-800';
+      case Status.Todo: return 'bg-blue-100 text-blue-800';
+      case Status.InProgress: return 'bg-yellow-100 text-yellow-800';
+      case Status.Completed: return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  }
+
   onDeleteTask(id: string) {
     if (confirm('Are you sure you want to delete this task?')) {
       this.taskStore.deleteTask(id);
     }
   }
 
+  onCloneTask(id: string) {
+    if (confirm('Create a copy of this task? The copy will be set to Draft status.')) {
+      this.taskStore.cloneTask(id);
+    }
+  }
 
-exportToCSV() {
-  const tasks = this.tasks();
-  const headers = ['Title', 'Description', 'Priority', 'Status', 'Category', 'Location', 'Attendees', 'Due Date', 'Created At'];
-  const csvContent = [
-    headers.join(','),
-    ...tasks.map(task => [
-      `"${task.title.replace(/"/g, '""')}"`,
-      `"${(task.description || '').replace(/"/g, '""')}"`,
-      task.priority,
-      task.status,
-      task.category,
-      `"${task.location.replace(/"/g, '""')}"`,
-      task.attendees,
-      task.dueDate.toISOString().split('T')[0],
-      task.createdAt.toISOString().split('T')[0]
-    ].join(','))
-  ].join('\n');
 
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'tasks.csv';
-  link.click();
-  window.URL.revokeObjectURL(url);
-}
+  onQuickClone(task: Task) {
+    this.taskStore.cloneTask(task.id);
+  }
+
+  exportToCSV() {
+    const tasks = this.tasks();
+    const headers = ['Title', 'Description', 'Priority', 'Status', 'Category', 'Location', 'Attendees', 'Due Date', 'Created At'];
+    const csvContent = [
+      headers.join(','),
+      ...tasks.map(task => [
+        `"${task.title.replace(/"/g, '""')}"`,
+        `"${(task.description || '').replace(/"/g, '""')}"`,
+        task.priority,
+        task.status,
+        task.category,
+        `"${task.location.replace(/"/g, '""')}"`,
+        task.attendees,
+        task.dueDate.toISOString().split('T')[0],
+        task.createdAt.toISOString().split('T')[0]
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'tasks.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
 
   private sortTasks(tasks: Task[]): Task[] {
     const priorityOrder = { [Priority.High]: 3, [Priority.Medium]: 2, [Priority.Low]: 1 };
