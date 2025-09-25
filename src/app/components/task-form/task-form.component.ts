@@ -3,7 +3,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Task, TaskFormData, Priority, Status } from '../../core/models/task.model';
+import { Task, TaskFormData, Priority, Status, Category } from '../../core/models/task.model';
 import { TaskStore } from '../../core/services/task.store';
 import { TaskService } from '../../core/services/task.service';
 
@@ -23,6 +23,7 @@ export class TaskFormComponent implements OnInit {
   taskForm: FormGroup;
   priorities = Object.values(Priority);
   statuses = Object.values(Status);
+  categories = Object.values(Category);
   isEditMode = signal(false);
   currentTaskId = signal<string | null>(null);
 
@@ -45,7 +46,10 @@ export class TaskFormComponent implements OnInit {
       description: ['', [Validators.maxLength(500)]],
       priority: [Priority.Medium, Validators.required],
       status: [Status.Todo, Validators.required],
-      dueDate: ['', [Validators.required, this.futureDateValidator]]
+      dueDate: ['', [Validators.required, this.futureDateValidator]],
+      category: [Category.ClubMeetings, Validators.required],
+      location: ['', [Validators.required, Validators.maxLength(200)]],
+      attendees: [1, [Validators.required, Validators.min(1), Validators.max(1000)]]
     });
   }
 
@@ -82,7 +86,8 @@ export class TaskFormComponent implements OnInit {
       const formValue = this.taskForm.value;
       const taskData: TaskFormData = {
         ...formValue,
-        dueDate: new Date(formValue.dueDate)
+        dueDate: new Date(formValue.dueDate),
+        attendees: Number(formValue.attendees) // Ensure it's a number
       };
 
       if (this.isEditMode() && this.currentTaskId()) {
@@ -113,11 +118,12 @@ export class TaskFormComponent implements OnInit {
       if (field.errors['required']) return 'This field is required';
       if (field.errors['maxlength']) return `Maximum ${field.errors['maxlength'].requiredLength} characters allowed`;
       if (field.errors['pastDate']) return 'Due date must be in the future';
+      if (field.errors['min']) return `Minimum ${field.errors['min'].min} attendees required`;
+      if (field.errors['max']) return `Maximum ${field.errors['max'].max} attendees allowed`;
     }
     return '';
   }
 
-  // Status transition validation
   onStatusChange(newStatus: Status) {
     if (this.isEditMode() && this.currentTaskId()) {
       // Add your status transition logic here if needed

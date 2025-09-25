@@ -11,6 +11,13 @@ export enum Status {
   Completed = 'Completed'
 }
 
+export enum Category {
+  Workshop = 'Workshop',
+  Seminar = 'Seminar',
+  Social = 'Social',
+  ClubMeetings = 'Club Meetings'
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -19,6 +26,9 @@ export interface Task {
   status: Status;
   dueDate: Date;
   createdAt: Date;
+  category: Category;
+  location: string;
+  attendees: number;
 }
 
 export interface TaskFormData {
@@ -27,4 +37,7 @@ export interface TaskFormData {
   priority: Priority;
   status: Status;
   dueDate: Date;
+  category: Category;
+  location: string;
+  attendees: number;
 }

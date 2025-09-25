@@ -1,8 +1,9 @@
+// src/app/components/task-list/task-list.component.ts
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Task, Priority, Status } from '../../core/models/task.model';
+import { Task, Priority, Status, Category } from '../../core/models/task.model';
 import { TaskStore } from '../../core/services/task.store';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -21,10 +22,12 @@ export class TaskListComponent {
 
   filterStatus = signal<Status | 'all'>('all');
   filterPriority = signal<Priority | 'all'>('all');
+  filterCategory = signal<Category | 'all'>('all');
   searchTerm = signal('');
 
   priorities = Object.values(Priority);
   statuses = Object.values(Status);
+  categories = Object.values(Category);
 
   // now filters react to signals + tasks
   filteredTasks = computed(() => {
@@ -38,11 +41,16 @@ export class TaskListComponent {
       tasks = tasks.filter(task => task.priority === this.filterPriority());
     }
 
+    if (this.filterCategory() !== 'all') {
+      tasks = tasks.filter(task => task.category === this.filterCategory());
+    }
+
     if (this.searchTerm()) {
       const term = this.searchTerm().toLowerCase();
       tasks = tasks.filter(task =>
         task.title.toLowerCase().includes(term) ||
-        (task.description?.toLowerCase().includes(term) || false)
+        (task.description?.toLowerCase().includes(term) || false) ||
+        task.location.toLowerCase().includes(term)
       );
     }
 
@@ -64,35 +72,49 @@ export class TaskListComponent {
     }
   }
 
+  getCategoryColor(category: Category): string {
+    switch (category) {
+      case Category.Workshop: return 'bg-purple-100 text-purple-800';
+      case Category.Seminar: return 'bg-indigo-100 text-indigo-800';
+      case Category.Social: return 'bg-pink-100 text-pink-800';
+      case Category.ClubMeetings: return 'bg-teal-100 text-teal-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  }
+
   onDeleteTask(id: string) {
     if (confirm('Are you sure you want to delete this task?')) {
       this.taskStore.deleteTask(id);
     }
   }
 
-  exportToCSV() {
-    const tasks = this.tasks();
-    const headers = ['Title', 'Description', 'Priority', 'Status', 'Due Date', 'Created At'];
-    const csvContent = [
-      headers.join(','),
-      ...tasks.map(task => [
-        `"${task.title.replace(/"/g, '""')}"`,
-        `"${(task.description || '').replace(/"/g, '""')}"`,
-        task.priority,
-        task.status,
-        task.dueDate.toISOString().split('T')[0],
-        task.createdAt.toISOString().split('T')[0]
-      ].join(','))
-    ].join('\n');
+// In task-list.component.ts - update the exportToCSV method
+exportToCSV() {
+  const tasks = this.tasks();
+  const headers = ['Title', 'Description', 'Priority', 'Status', 'Category', 'Location', 'Attendees', 'Due Date', 'Created At'];
+  const csvContent = [
+    headers.join(','),
+    ...tasks.map(task => [
+      `"${task.title.replace(/"/g, '""')}"`,
+      `"${(task.description || '').replace(/"/g, '""')}"`,
+      task.priority,
+      task.status,
+      task.category,
+      `"${task.location.replace(/"/g, '""')}"`,
+      task.attendees,
+      task.dueDate.toISOString().split('T')[0],
+      task.createdAt.toISOString().split('T')[0]
+    ].join(','))
+  ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'tasks.csv';
-    link.click();
-    window.URL.revokeObjectURL(url);
-  }
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'tasks.csv';
+  link.click();
+  window.URL.revokeObjectURL(url);
+}
 
   private sortTasks(tasks: Task[]): Task[] {
     const priorityOrder = { [Priority.High]: 3, [Priority.Medium]: 2, [Priority.Low]: 1 };
